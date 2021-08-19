@@ -22,12 +22,14 @@
 
   const path = require('path')
 
+  const BASE_JS = "./src/client/js/"
+
   module.export = {
     mode: "development",
     watch: true,
     entry: {
-      main: "./src/client/main.js",
-      videoplayer: "./src/client/videoPlayer.js",
+      main: BASE_JS + "main.js",
+      videoplayer: BASE_JS + "videoPlayer.js",
     },
     output: {
       filename: "js/[name].js",
