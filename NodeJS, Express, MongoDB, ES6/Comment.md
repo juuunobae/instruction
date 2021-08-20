@@ -163,7 +163,7 @@
             each comment in video.comments.reverse()
                 li.video__comment
                     i.fas.fa-comment
-                |  #{comment.text}
+                    span #{comment.text}
 
 ```
 - watch constroller 수정
@@ -215,3 +215,8 @@
     }
 
 ```
+- fetch는 리턴값으로 response 객체를 반환한다.
+
+## 댓글 삭제
+- 삭제 버튼을 누르면 html에서 삭제되고 데이터베이스에서도 삭제되게 한다.
+- 실시간으로 업로드 되는 효과를 주기위해 임시로 생성했던 프론트엔드에서 생성한 html도 바로 삭제할 수 있게 한다.
