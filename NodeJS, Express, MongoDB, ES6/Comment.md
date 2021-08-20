@@ -28,8 +28,8 @@
   - `comments: [{ type: mongoose.Schema.Types.ObjectId, required: true, ref: 'Comment'}]`
 - > 사용자가 비디오에 댓글을 달면 그 댓글은 해당 비디오와 사용자를 가지게 되면서, 사용자와 비디오는 여러 댓글 들을 가질 수 있다.
 
-## 댓글창
-- 프론트엔드에 댓글창을 만들어준다.
+## 댓글 작성
+- 프론트엔드에 댓글 작성 창을 만들어준다.
 - template을 생성
 ```pug
 
@@ -64,13 +64,15 @@
         }
         fetch(`/api/videos/${videoId}/comment`, {
             method: 'POST',
-            header: {
+            headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
                 text,
             }),
         })
+
+        textarea.value  = '';
     }
 
     // form은 로그인 한 사용자에게만 보여주기 때문에 사용자가 로그인을 안 했으면 form이 null이 되어서 오류가 난다.
@@ -86,6 +88,10 @@
   - > form안에 있는 버튼을 클릭하면 form이 제출된다.
   - >   > form이 제출되면 설정한 메서드 방식으로 어떠한 url로 전송된다.
 - 굳이 버튼의 클릭 이벤트를 감지해서 form을 제출하는 것 대신 submit 이벤트를 감지하게 한다.
+- `headers`
+  - 요청의 세부사항 명시
+  - `'Content-Type': 'application/json'`
+    - express에게 JSON을 보내는 것이라고 알려주는 것
 - `body`
   - 실질적인 데이터가 포함
   - `fetch 안의 body`로 보내는 데이터는 controller의 `req.body`에서 사용할 수 있다.
@@ -94,10 +100,6 @@
     - `body: {...}`는 [object Object]로 변환되어 보내진다.
 - `JOSN.stringify()`
   - JSON데이터를 string으로 변환시켜준다.
-- `header`
-  - 요청의 세부사항 명시
-  - `'Content-Type': 'application/json'`
-    - express에게 JSON을 보내는 것이라고 알려주는 것
 
 ## API router
 - 프론트엔드에서 API를 요청할 수 있게 router를 만들어준다.
@@ -113,9 +115,27 @@
 ```js
 
     // controllers/videoController.js
-    export const createComment = (req, res) => {
-        const { body, params  } = req
-        res.end();
+    export const createComment = async(req, res) => {
+        const { 
+            params: { id },
+            body: { text },
+            session: { user },s 
+        } = req
+        
+        const video = await Video.findById(id);
+
+        if(!video){
+            return res.sendStatus(404)
+        }
+
+        const comment = await Comment.create({
+            text,
+            owner: user._id,
+            video: id
+        })
+        video.comments.push(comment._id);
+        video.save();
+        return res.sendStatus(201); // status code 201 == created
     }
 
 ```
@@ -130,3 +150,68 @@
 - `app.use(express.json())`
   - express를 사용중이라면 JSON.parse()
   - header에 Content-Type이 json이라고 명시된 요청이 들어오면 string으로 변경되었던 body의 데이터들을 다시 JS object로 변환해준다.
+
+## 댓글창
+- 사용자가 쓴 댓글을 보여주는 창이다.
+- template 생성
+```pug
+
+    //- watch.pug
+
+    div.video__comments
+        ul
+            each comment in video.comments.reverse()
+                li.video__comment
+                    i.fas.fa-comment
+                |  #{comment.text}
+
+```
+- watch constroller 수정
+```js
+
+    // videoController.js
+
+    export const watch = async(req, res) => {
+        const { id } = req.params;
+        const video = await Video.findById(id).populate('comments');
+    }
+
+```
+- 해당 비디오에 저장되어있는 댓글을 보려면 comments를 populate를 해주어야 한다.
+
+### 실시간 업로드
+- 사용자가 댓글을 쓰면 새로고침 되지 않고 실시간으로 업로드 되는 것 같은 효과를 준다.
+  - 백엔드 pug에서 생성하는 댓글과 같은 형태의 html을 프론트엔드에서 임시로 만들어 실제로 생성된 것과 같은 효과를 준다.
+- fetch 수정
+```js
+
+    // client/js/commentSection.js
+
+    const addComment = (text) => {
+        const videoComments = document.querySelector('.video__comments ul')
+        const newComment = document.createElement('li')
+        newComment.className = 'video__comment';
+        const icon  = document.createElement('i');
+        icon.className = 'fas fa-comment';
+        const span = document.createElement(span)
+        span.innerText = ` ${text}`;
+        newComment.appendChild(icon);
+        newComment.appendChild(span);
+        videoComments.prepend(newComment)
+    }
+
+    const { status } = await fetch(`/api/videos/${videoId}/comment`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            text,
+        }),
+    })
+
+    if(status === 201){
+        addComment(text);
+    }
+
+```
