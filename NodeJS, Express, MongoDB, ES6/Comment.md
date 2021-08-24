@@ -164,6 +164,8 @@
                 li.video__comment
                     i.fas.fa-comment
                     span #{comment.text}
+                    if  String(comment.owner) === String(loggedInUser._id)
+                        span#deleteBtn  ❌
 
 ```
 - watch constroller 수정
@@ -187,32 +189,43 @@
 
     // client/js/commentSection.js
 
-    const addComment = (text) => {
+    const addComment = (text, id) => {
         const videoComments = document.querySelector('.video__comments ul')
         const newComment = document.createElement('li')
+        newComment.dataset.id = id;
         newComment.className = 'video__comment';
         const icon  = document.createElement('i');
         icon.className = 'fas fa-comment';
         const span = document.createElement(span)
         span.innerText = ` ${text}`;
+        const span2 = document.createElement("span");
+        span2.innerText = " ❌";
+        span2.addEventListener("click", handleDelete);
         newComment.appendChild(icon);
         newComment.appendChild(span);
+        newComment.appendChild(span2);
         videoComments.prepend(newComment)
     }
 
-    const { status } = await fetch(`/api/videos/${videoId}/comment`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            text,
-        }),
-    })
+    const handlSubmit = (e) => {
+        const response = await fetch(`/api/videos/${videoId}/comment`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                text,
+            }),
+        })
 
-    if(status === 201){
-        addComment(text);
+        if(response.status === 201){
+            const { newCommentId } = await response.json();
+            addComment(text, newCommentId);
+        }
+
+        textarea.value = '';
     }
+
 
 ```
 - fetch는 리턴값으로 response 객체를 반환한다.
@@ -220,3 +233,59 @@
 ## 댓글 삭제
 - 삭제 버튼을 누르면 html에서 삭제되고 데이터베이스에서도 삭제되게 한다.
 - 실시간으로 업로드 되는 효과를 주기위해 임시로 생성했던 프론트엔드에서 생성한 html도 바로 삭제할 수 있게 한다.
+- 삭제 버튼 이벤트 달기 
+```js
+
+    // commentSection.js
+
+    const handleDelete = async (e) => {
+        const comment = e.target.parentNode;
+        comment.remove();
+        const commentId = comment.dataset.id;
+        await fetch(`/api/comments/${commentId}`, {
+            method: "DELETE",
+        });
+    };
+
+```
+> fetch는 메서드를 DELETE로 보낸다.
+
+- api router 추가
+```js
+
+    // apiRouter.js
+
+    apiRouter.delete("/comments/:id([0-9a-f]{24})", deleteComment);
+
+```
+> delete로 요청이 들어오기 때문데 delete요청을 처리하는 router 생성
+
+- api controller 추가
+```js
+
+    export const deleteComment = async (req, res) => {
+        const {
+            params: { id },
+            session: { user },
+        } = req;
+        const comment = await Comment.findById(id).populate("video");
+
+        if (!comment === user._id) {
+            return res.sendStatus(403);
+        }
+
+        await Video.findByIdAndUpdate(
+            comment.video._id,
+            {
+            $pull: { comments: comment._id },
+            },
+            { safe: true }
+        );
+
+        await Comment.findByIdAndDelete(id);
+
+        return res.sendStatus(204);
+    };
+
+```
+- 데이터베이스에서 댓글도 지워지고, 댓글과 연결된 비디오에서도 댓글 데이터가 지워진다.
