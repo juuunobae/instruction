@@ -156,19 +156,50 @@
     }
   })
 
-  const multerUploader = multerS3({
+  // res.locals.isHeroku = isHeroku 추가 
+  const isHeroku = process.env.NODE_ENV === 'production';
+
+  const s3ImageUploader = multerS3({
     s3: s3,
-    bucket: '[bucket name]',
+    bucket: '[bucket name]/images',
+    acl: 'public-read',
+  })
+
+  const s3VideoUploader = multerS3({
+    s3: s3,
+    bucket: '[bucket name]/videos',
     acl: 'public-read',
   })
 
   export const avatarUpload = multer({
-    storage: multerUploader
+    storage: isheroku ? s3ImageUploader : undefined,
   })
+
+  export const uploadVideo = multer({
+    dest: "uploads/videos/",
+    storage: isheroku ? s3VideoUploader : undefined,
+  });
 
 ```
 - `acl`: object의 권한
   - 누구에게 파일을 보여줄것인가
+- `NODE_ENV`: heroku에 있는 환경변수
+  - server가 heroku app에서 동작하고 있으면 `production`으로 저장되어 있다.
+  - heroku app을 사용하지 않으면 `undefined`이다.</br></br>
+
+- req.file 객체 사용
+```js
+
+  // controller.js
+
+  const isHeroku = process.env.NODE_ENV === 'production';
+
+  ({
+    avatarUrl: file ? ( isHeroku ? file.location : file.path ) : avatarUrl,
+    // file이 있고 server가 heroku app에서 동작하고 있으면 file.location을 localhost에서 요청했으면 file.path를 넣어준다.
+  })
+
+```
 
 ### file
 - req.file 객체의 key가 바꼈기 때문에 수정해주어야 한다.
