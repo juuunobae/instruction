@@ -15,6 +15,8 @@
     import { createFFmpeg, fetchFile } from '@ffmpeg/ffmpeg';
 
 ```
+> `SharedArrayBuffer is not defined`에러가 발생하면 </br>
+> `npm install @ffmpeg/ffmpeg@0.9.7 @ffmpeg/core@0.8.5` 버전으로 다운그레이드 시켜준다.
 
 ## use
 - `createFFmpeg()`
