@@ -42,7 +42,7 @@
         css: {
             watch: "src/scss/*",
             src: "src/scss/styles.scss",
-            dest: "dest/css"
+            dest: "dist/css"
         }
         };
 
@@ -78,7 +78,7 @@
     ```html
 
         <head>
-            <link rel="stylesheet" href="dest/css/styles.css" />
+            <link rel="stylesheet" href="dist/css/styles.css" />
         </head>
 
     ```
@@ -94,3 +94,47 @@
     ```
     
 ## SCSS syntax
+- 이름 앞에 _(언더바)가 있는 파일들은 css로 compile 되기를 원하지 않는 파일이다.
+
+### Variables
+- 사이트에서 중요한 스타일을 저장할 때 사용한다.
+- `_variables.scss`
+    ```scss
+
+        $bg: red;
+
+    ```
+- `styles.scss`
+    ```scss
+
+        body {
+            background-color: $bg;
+        }
+
+    ```
+
+### Nesting
+- 중첩되어 있는 태그들을 중첩해서 사용할 수 있다.
+- `index.html`
+    ```html
+
+        <div class='box'>
+            <h2>Title</h2>
+        </div>
+        <h2>Another Title</h2>
+
+    ```
+- `styles.scss`
+    ```scss
+
+        .box {
+            &:hover {
+                background-color: green;
+            }
+            margin: 10px;
+            h2 {
+                color: blue;
+            }
+        }
+
+    ```
