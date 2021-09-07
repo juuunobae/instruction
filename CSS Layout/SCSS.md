@@ -138,3 +138,131 @@
         }
 
     ```
+
+### mixins
+- scss 기능을 재사용할 수 있게 해준다.
+- `_mixins.scss`
+    ```scss
+
+        @mixin [name]($color) {
+            text-decoration: none;
+            margin-bottom: 12px;
+            color: $color;
+        }
+
+        /* -----------------------------------------*/
+
+        @mixin [name]($word) {
+            text-decoration: none;
+            margin-bottom: 12px;
+            @if $word == 'first'  {
+                color: red;
+            } @else {
+                color: blue;
+            }
+        }
+
+    ```
+    - mixin에 인수를 주고 사용할 수 있고 조건문도 사용할 수 있다.
+- `styles.scss`
+    ```scss
+
+        @import "_mixins";
+
+        a{
+            &:first-child() {
+                @include [name](red);
+            }
+            &:last-child() {
+                @include [name](blue);
+            }
+        }
+
+        /* -----------------------------------------*/
+
+        a{
+            &:first-child() {
+                @include [name]("first");
+            }
+            &:last-child() {
+                @include [name]("last");
+            }
+        }
+
+
+    ```
+
+## mixin @content
+- 동적으로 스타일을 부여할 수 있다.
+- `_mixins.scss`
+    ```scss
+
+        $minIphone: 500px;
+        $maxIphone: 690px;
+
+        @mixin responsive($device) {
+            @if $device == 'iphone' {
+                @media screen and (min-width: $minIphone) and (max-width: $maxIphone) {
+                    @content;
+                }
+            } @else if $device == 'ipad' {
+                @media screen and (min-width: 600px) and (max-width: 1120px) {
+                    @content;
+                }
+            } @else if $device == 'macbook'{
+                @media screen and (min-width: 840px) and (max-width: 1680px) {
+                    @content;
+                }
+            }
+        }
+
+    ```
+- `styles.scss`
+    ```scss
+
+        @import "_mixins";
+
+        h1 {
+            @include resposive('iphone') {
+                color: yellow:
+            }
+            @include resposive('ipad') {
+                font-size: 60px;
+            }
+            @include resposive('macbook') {
+                font-size: 150px;
+                margin: 30px;
+            }
+        }
+
+    ```
+
+## extends
+- 코드를 재사용할 때 사용한다.
+- `_buttons.scss`
+    ```scss
+
+        %button {
+            border-radius: 8px;
+            font-size: 16px;
+            text-transform: uppercase;
+        }
+
+    ```
+- `styles.scss`
+    ```scss
+
+        @import "_buttons";
+
+        button {
+            @extend %button;
+        }
+
+        a {
+            @extend %button;
+        }
+
+    ```
+
+> ***mixin***은 상황에 따라 다르게 코딩을 해야 될 때 사용하면 되고, </br>
+> ***extends***는 다른 코드를 확장하거나 재사용 해야 될 때 사용하면 된다.
