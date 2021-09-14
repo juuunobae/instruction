@@ -40,13 +40,13 @@
     - 위 코드만 남기고 지운다.
 
 ## Create
+- `yarn add prop-types` 설치
 - `.env`
     ```.env
 
         NODE_PATH=src
 
     ```
-- `yarn add prop-types` 설치
 - `src/Components/App.js` App.js 파일 이동
     ```js
 
@@ -77,17 +77,72 @@
 ```js
 
     import React from 'react';
-    import { HashRouter as Router } from 'react-router-dom';
+    import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
     import Home from 'Components/Home';
+    import Header from 'Components/Router';
 
     export default () => {
         <Router>
-            <Route path='/' exact components={Home} />
+            <>
+                <Header />
+                <Switch>
+                    <Route path='/' exact components={Home} />
+                    <Route path='/tv' exact components={TV} />
+                    <Redirect from='#' to='/' />
+                </Switch>
+            </>
         </Router>
+        // Switch: Route로 생성된 자식 컴포넌트 중 일치하는 path의 첫번 째 컴포넌트를 render한다.
+        // Switch를 사용하지 않으면 '/'에 해당하는 경로로 가게 되면 '/'로 설정되어있는 첫 Route와 Redirect를 동시에 render 해버리기 때문에 에러가 발생한다.
+
+        // exact: 정확하게 일치하는 url의 컴포넌트를 render한다.
+        // url과 일치하는 Route 경로가 없으면 Redirect가 render된다.
     }
 
 ```
+- `App.js`
+    ```js
 
+        import React, { Component } from 'react';
+        import Router from 'Components/Router';
+
+        class App extends Component {
+            render() {
+                return (
+                    <>
+                        <Router />
+                    </>
+                )
+            }
+        }
+
+        export default App;
+
+    ```
+
+- `src/Components/Header.js` 생성
+```js
+
+    import react from 'react';
+    import { Link } from 'react-router-dom'
+
+    export default () => (
+        <header className='nav'>
+            <ul>
+                <li>
+                    <Link href='/'>Movies</Link>
+                </li>
+                <li>
+                    <Link href='/tv'>TV</Link>
+                </li>
+                <li>
+                    <Link href='/search'>Search</Link>
+                </li>
+            </ul>
+        </header>
+    )
+
+```
 # 프로젝트 실행
 - `yarn start`
 
