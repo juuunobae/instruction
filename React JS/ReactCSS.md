@@ -114,20 +114,20 @@
             }
         `;
 
-        const item = styled.li``;
+        const Item = styled.li``;
 
         const SLink = styled(Link)``;
 
         export default () => (
             <Header>
                 <List>
-                    <item>
+                    <Item>
                         <SLink to='/'>Movies</SLink>
-                    </item>
+                    </Item>
                 </List>
             </Header>
         )
-        // List = ul, item = li, SLink = Link component와 같다.
+        // Header = header, List = ul, Item = li, SLink = Link component와 같다.
 
     ```
 

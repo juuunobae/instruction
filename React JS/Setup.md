@@ -130,13 +130,13 @@
         <header className='nav'>
             <ul>
                 <li>
-                    <Link href='/'>Movies</Link>
+                    <Link to='/'>Movies</Link>
                 </li>
                 <li>
-                    <Link href='/tv'>TV</Link>
+                    <Link to='/tv'>TV</Link>
                 </li>
                 <li>
-                    <Link href='/search'>Search</Link>
+                    <Link to='/search'>Search</Link>
                 </li>
             </ul>
         </header>
@@ -144,5 +144,5 @@
 
 ```
 # 프로젝트 실행
-- `yarn start`
+- `yarn start` or `npm start`
 
