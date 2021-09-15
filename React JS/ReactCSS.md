@@ -124,6 +124,9 @@
                     <Item>
                         <SLink to='/'>Movies</SLink>
                     </Item>
+                    <Item>
+                        <SLink to='/tv'>TV</SLink>
+                    </Item>
                 </List>
             </Header>
         )
@@ -132,3 +135,91 @@
     ```
 
     > \<Link\>는 \<Router\>안에서만 동작한다.
+
+### Global Styled Components
+- style components를 모든 파일에 적용시킬 때 
+- `yarn add styled-reset` install
+  - 모든 css 기본 설정을 없앤다.
+- `src/Components/GlobalStyles.js`
+    ```js
+
+        import { createGlobalStyle } from 'styled-componentes';
+        import reset from 'styled-reset';
+
+        const globalStyles = createGlobalStyle`
+            ${reset};
+            a {
+                text-decoration: none;
+                color: inherit;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                ...
+            }
+        `
+
+        export default globalStyles;
+
+    ```
+- `src/Components/App.js`
+    ```js
+
+        import GlobalStyles from 'Components/GlobalStyles';
+
+        class App extends Component {
+            render() {
+                return (
+                    <>
+                        <GlobalStyles />
+                    </>
+                )
+            }
+        }
+    
+    ``` 
+
+### props 전달
+- style component에 props를 전달해 사용할 수 있다.
+### withRouter
+- 다른 컴포넌트를 감싸는 컴포넌트이고, Router에 대한 정보를 준다
+- Route가 아닌 컴포넌트에서 `match`, `location`, `history`에 접근하기 위해 사용한다.
+- `src/Components/Header.js`
+    ```js
+
+        import React from 'react';
+        import { Link, withRouter } from 'react-router-dom';
+        import styled from 'styled-components'
+
+        const Header = styled.header``;
+
+        const Item = styled.li`
+            border-bottom: 5px solid ${props => props.current ? '#3498db' : 'transparent'}
+        `;
+            // current props 값이 true이면 border-bottom을 준다.
+
+        const Item = styled.li``;
+
+        const SLink = styled(Link)``;
+
+
+        // location.pathname은 현재 있는 페이지의 url을 알려준다.
+        // pathname과 같은 to를 가지고 있는 Item 컴포넌트는 current가 true일 것이다.
+        export default withRouter({location: { pathname }} => (
+            <Header>
+                <List>
+                    <Item current={pathname === '/'}>
+                        <SLink to='/'>Movies</SLink>
+                    </Item>
+                    <Item current={pathname === '/tv'}>
+                        <SLink to='/tv'>TV</SLink>
+                    </Item>
+                    <Item current={pathname === '/search'}>
+                        <SLink to='/search'>Search</SLink>
+                    </Item>
+                </List>
+            </Header>
+        ))
+
+    ```
