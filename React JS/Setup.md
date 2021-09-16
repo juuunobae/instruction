@@ -79,7 +79,7 @@
     import React from 'react';
     import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
     import Home from 'Components/Home';
-    import Header from 'Components/Router';
+    import Header from 'Components/Header';
 
     export default () => {
         <Router>
