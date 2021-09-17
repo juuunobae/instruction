@@ -178,7 +178,7 @@
 
             render() {
                 const { movieResults, tvResults, searchTerm, loading, error } = this.state;
-                return <TVPresenter topRated={topRated} popular={popular} airingToday={airingToday} error={error} loading={loading} handleSubmit={handleSubmit} />
+                return <TVPresenter topRated={topRated} popular={popular} airingToday={airingToday} error={error} loading={loading} handleSubmit={this.handleSubmit} />
             }
         }
 
@@ -222,7 +222,7 @@
         export default class extends React.Component{
             constructor(props){
                 super(props);
-                const  {
+                const {
                     location: {
                         pathname
                     }
