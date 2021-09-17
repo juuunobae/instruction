@@ -191,23 +191,82 @@
     ```
 
 ### Detail
-- `Components/Router.js` 생성
-```js
+- `Components/Router.js`
+- Route 추가
+    ```jsx
 
-    import React from 'react';
-    import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
-    import Detail from 'Components/Detail';
+        import React from 'react';
+        import { BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom';
+        import Detail from 'Routes/Detail';
 
-    export default () => {
-        <Router>
-            <>
-                <Header />
-                <Switch>
-                    <Route path='/movie/:id'  components={Detail} />
-                    <Route path='/show/:id'  components={Detail} />
-                </Switch>
-            </>
-        </Router>
-    }
+        export default () => {
+            <Router>
+                <>
+                    <Header />
+                    <Switch>
+                        <Route path='/movie/:id' components={Detail} />
+                        <Route path='/show/:id' components={Detail} />
+                    </Switch>
+                </>
+            </Router>
+        }
 
-```
+    ``` 
+- `src/Routes/Search/SearchContainer.js`
+    ```js
+
+        import React from 'react';
+        import SearchPresenter from './SearchPresenter';
+        import { moviesApi, tvApi } from 'api';
+
+        export default class extends React.Component{
+            constructor(props){
+                super(props);
+                const  {
+                    location: {
+                        pathname
+                    }
+                } = props;
+                this.state = {
+                    result:null,
+                    error: null,
+                    loading: true,
+                    isMovie: pathname.includes('/movie/');
+                }
+            }
+            
+
+            async componentDidMount() {
+                const { 
+                    match: { 
+                        params: { id }
+                    }, 
+                    history: { push } 
+                } = this.props
+                const { isMovie } = this.state;
+                const parsedId  = parseInt(id)
+                if(isNaN(parsedId)){
+                    return push('/')
+                }
+                let result = null;
+                try{
+                    if(isMovie){
+                        ({ data: result} = await moviesApi.movieDetail(parseId));
+                    } else{
+                        ({ data: result} = await tvApi.showDetail(parseId));
+                    }
+                }catch{
+                    this.setState({ error: "Can't find anything" })
+                }finally{
+                    this.setState({ loading: false, result })
+                }
+            }
+
+            render() {
+                
+                const { result, loading, error } = this.state;
+                return <TVPresenter result={result} error={error} loading={loading}  />
+            }
+        }
+
+    ```
